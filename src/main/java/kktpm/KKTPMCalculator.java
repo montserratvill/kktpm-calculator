@@ -205,7 +205,6 @@ public class KKTPMCalculator {
 //            }
 //        }
 //        // TO-BE-REMOVED-END
-        
         // Form A_j
         RealMatrix aj = MatrixUtils.createRealMatrix(gv.getDimension(), xv.getDimension());
         for (int i = 0; i < jacobianGMatrix.getRowDimension(); i++) {
@@ -227,7 +226,6 @@ public class KKTPMCalculator {
 //            }
 //        }
 //        // TO-BE-REMOVED-END
-
         // Form the big matrix used later for factorization
         // Start by forming the four sub-matrices
         RealMatrix topLeft = am.multiply(am.transpose()).add(
@@ -611,6 +609,16 @@ public class KKTPMCalculator {
         return getProjectedKKTPM(problem, z, 0.0);
     }
 
+    public static KKTPM getProjectedKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        return getProjectedKKTPM2(problem, z, 0.0, wStar);
+    }
+
     /**
      * Calculates and returns the projected KKTPM (Karush Khun Tucker Proximity
      * Measure) at the specified point (x-vector).
@@ -655,6 +663,37 @@ public class KKTPMCalculator {
         return new KKTPM(projectedKKTPM, numericalFunEval);
     }
 
+    public static KKTPM getProjectedKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double rho,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        // The ideal point must be either null (for single objective problems)
+        // or equal in length to the number of objectives.
+        if (z != null && z.length != problem.getObjectivesCount()) {
+            throw new IllegalArgumentException(zErrorMessage);
+        }
+        // Create the datastructures required for storing problme information.
+        int varCount = problem.getTotalVariablesCount();
+        int objCount = problem.getObjectivesCount();
+        int conCount = problem.getConstraintsCount();
+        double[] x = new double[varCount];
+        double[] f = new double[objCount];
+        double[] g = new double[conCount];
+        double[][] jacobianF
+                = new double[objCount][varCount];
+        double[][] jacobianG
+                = new double[conCount][varCount];
+        // Extract problem information
+        int numericalFunEval = extractProblemInfo(problem, x, objCount, f, conCount, g, jacobianF, jacobianG);
+        // Calculate and return the final KKTPM
+        double projectedKKTPM = getProjectedKKTPM2(x, f, z, g, jacobianF, jacobianG, rho, wStar);
+        return new KKTPM(projectedKKTPM, numericalFunEval);
+    }
+
     /**
      * Calculates projected KKTPM at the specified point. (assumes rho = 0.0)
      *
@@ -674,6 +713,17 @@ public class KKTPMCalculator {
             double[][] jacobianF,
             double[][] jacobianG) {
         return getProjectedKKTPM(x, f, z, g, jacobianF, jacobianG, 0.0);
+    }
+
+    public static double getProjectedKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double[] wStar) {
+        return getProjectedKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.0, wStar);
     }
 
     /**
@@ -700,6 +750,21 @@ public class KKTPMCalculator {
         //double kktpmDirect = getDirectKKTPM(f, g, u);
         double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, u, rho);
         return getProjectedKKTPM(f, g, u, kktpmDirect);
+    }
+
+    public static double getProjectedKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double rho,
+            double[] wStar) {
+        double[] u = getLagrangeMultiplers(x, f, z, g, jacobianF, jacobianG, rho);
+        //double kktpmDirect = getDirectKKTPM(f, g, u);
+        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, u, rho);
+        return getProjectedKKTPM2(f, g, u, kktpmDirect, z, wStar);
     }
 
     /**
@@ -729,6 +794,28 @@ public class KKTPMCalculator {
                 / (1 + gv.dotProduct(gv));
         return kktpmProjected;
     }
+
+    public static double getProjectedKKTPM2(
+            double[] f,
+            double[] g,
+            double[] u,
+            double kktpmDirect,
+            double[] z,
+            double[] wStar) throws
+            OutOfRangeException,
+            DimensionMismatchException,
+            NotPositiveException {
+        RealVector fv = new ArrayRealVector(f);
+        RealVector gv = new ArrayRealVector(g);
+        RealVector uv = new ArrayRealVector(u);
+        RealVector um = uv.getSubVector(0, fv.getDimension());
+        RealVector uj = uv.getSubVector(fv.getDimension(), gv.getDimension());
+        RealVector hv = new ArrayRealVector(getH(f, z, wStar));
+        double kktpmProjected = kktpmDirect
+                - ((kktpmDirect + gv.dotProduct(uj) + hv.dotProduct(um))
+                / (1 + gv.dotProduct(gv) + hv.dotProduct(hv)));
+        return kktpmProjected;
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Adjusted KKTPM">
@@ -752,6 +839,16 @@ public class KKTPMCalculator {
             TooManyDecimalPointsException,
             MisplacedTokensException {
         return getAdjustedKKTPM(problem, z, 0.0);
+    }
+
+    public static KKTPM getAdjustedKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        return getAdjustedKKTPM2(problem, z, 0.0, wStar);
     }
 
     /**
@@ -798,6 +895,37 @@ public class KKTPMCalculator {
         return new KKTPM(adjustedKKTPM, numericalFunEval);
     }
 
+    public static KKTPM getAdjustedKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double rho,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        // The ideal point must be either null (for single objective problems)
+        // or equal in length to the number of objectives.
+        if (z != null && z.length != problem.getObjectivesCount()) {
+            throw new IllegalArgumentException(zErrorMessage);
+        }
+        // Create the datastructures required for storing problme information.
+        int varCount = problem.getTotalVariablesCount();
+        int objCount = problem.getObjectivesCount();
+        int conCount = problem.getConstraintsCount();
+        double[] x = new double[varCount];
+        double[] f = new double[objCount];
+        double[] g = new double[conCount];
+        double[][] jacobianF
+                = new double[objCount][varCount];
+        double[][] jacobianG
+                = new double[conCount][varCount];
+        // Extract problem information
+        int numericalFunEval = extractProblemInfo(problem, x, objCount, f, conCount, g, jacobianF, jacobianG);
+        // Calculate and return the final KKTPM
+        double adjustedKKTPM = getAdjustedKKTPM2(x, f, z, g, jacobianF, jacobianG, rho, wStar);
+        return new KKTPM(adjustedKKTPM, numericalFunEval);
+    }
+
     /**
      * Calculates adjusted KKTPM at the specified point. (assumes rho = 0.0)
      *
@@ -817,6 +945,17 @@ public class KKTPMCalculator {
             double[][] jacobianF,
             double[][] jacobianG) {
         return getAdjustedKKTPM(x, f, z, g, jacobianF, jacobianG, 0.0);
+    }
+
+    public static double getAdjustedKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double[] wStar) {
+        return getAdjustedKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.0, wStar);
     }
 
     /**
@@ -843,6 +982,19 @@ public class KKTPMCalculator {
         return getAdjustedKKTPM(f, g, u);
     }
 
+    public static double getAdjustedKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double rho,
+            double[] wStar) {
+        double[] u = getLagrangeMultiplers(x, f, z, g, jacobianF, jacobianG, rho);
+        return getAdjustedKKTPM2(f, g, u, z, wStar);
+    }
+
     /**
      * Calculates adjusted KKTPM, given objectives, constraints and Lagrange
      * multipliers.
@@ -864,6 +1016,25 @@ public class KKTPMCalculator {
         RealVector uv = new ArrayRealVector(u);
         double kktpmAdjusted = -1 * gv.dotProduct(
                 uv.getSubVector(fv.getDimension(), gv.getDimension()));
+        return kktpmAdjusted;
+    }
+
+    public static double getAdjustedKKTPM2(
+            double[] f,
+            double[] g,
+            double[] u,
+            double[] z,
+            double[] wStar) throws
+            DimensionMismatchException,
+            OutOfRangeException,
+            NotPositiveException {
+        RealVector fv = new ArrayRealVector(f);
+        RealVector gv = new ArrayRealVector(g);
+        RealVector uv = new ArrayRealVector(u);
+        double kktpmAdjusted = -1 * gv.dotProduct(
+                uv.getSubVector(fv.getDimension(), gv.getDimension()))
+                - new ArrayRealVector(getH(f, z, wStar))
+                .dotProduct(uv.getSubVector(0, fv.getDimension()));
         return kktpmAdjusted;
     }
     //</editor-fold>
@@ -889,6 +1060,16 @@ public class KKTPMCalculator {
             TooManyDecimalPointsException,
             MisplacedTokensException {
         return getKKTPM(problem, z, 0.0);
+    }
+
+    public static KKTPM getKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        return getKKTPM2(problem, z, 0.0, wStar);
     }
 
     /**
@@ -935,27 +1116,37 @@ public class KKTPMCalculator {
         return new KKTPM(kktpm, numericalFunEval);
     }
 
-//    /**
-//     * Calculates KKTPM, given objectives, constraints and Lagrange multipliers.
-//     *
-//     * @param f the specified point in objective space
-//     * @param g constraints values
-//     * @param u Lagrange multipliers
-//     * @return KKTPM
-//     */
-//    public static double getKKTPM(
-//            double[] f,
-//            double[] g,
-//            double[] u) throws
-//            DimensionMismatchException,
-//            OutOfRangeException,
-//            NotPositiveException {
-//        //double kktpmDirect = getDirectKKTPM(f, g, u);
-//        double kktpmDirect = getDirectKKTPM(f, g, u);
-//        double kktpmProjected = getProjectedKKTPM(f, g, u, kktpmDirect);
-//        double kktpmAdjusted = getAdjustedKKTPM(f, g, u);
-//        return (kktpmDirect + kktpmProjected + kktpmAdjusted) / 3;
-//    }    
+    public static KKTPM getKKTPM2(
+            OptimizationProblem problem,
+            double[] z,
+            double rho,
+            double[] wStar) throws
+            EvaluationException,
+            TooManyDecimalPointsException,
+            MisplacedTokensException {
+        // The ideal point must be either null (for single objective problems)
+        // or equal in length to the number of objectives.
+        if (z != null && z.length != problem.getObjectivesCount()) {
+            throw new IllegalArgumentException(zErrorMessage);
+        }
+        // Create the datastructures required for storing problme information.
+        int varCount = problem.getTotalVariablesCount();
+        int objCount = problem.getObjectivesCount();
+        int conCount = problem.getConstraintsCount();
+        double[] x = new double[varCount];
+        double[] f = new double[objCount];
+        double[] g = new double[conCount];
+        double[][] jacobianF
+                = new double[objCount][varCount];
+        double[][] jacobianG
+                = new double[conCount][varCount];
+        // Extract problem information
+        int numericalFunEval = extractProblemInfo(problem, x, objCount, f, conCount, g, jacobianF, jacobianG);
+        // Calculate and return the final KKTPM
+        double kktpm = getKKTPM2(x, f, z, g, jacobianF, jacobianG, rho, wStar);
+        return new KKTPM(kktpm, numericalFunEval);
+    }
+
     /**
      * Calculates KKTPM, given objectives, constraints and Lagrange multipliers.
      *
@@ -992,6 +1183,30 @@ public class KKTPMCalculator {
         }
     }
 
+    public static double getKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double[] u,
+            double rho,
+            double[] wStar) throws
+            DimensionMismatchException,
+            OutOfRangeException,
+            NotPositiveException {
+        //double kktpmDirect = getDirectKKTPM(f, g, u);
+        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, u, rho);
+        double kktpmProjected = getProjectedKKTPM2(f, g, u, kktpmDirect, z, wStar);
+        double kktpmAdjusted = getAdjustedKKTPM2(f, g, u, z, wStar);
+        if (kktpmAdjusted > kktpmDirect) {
+            return (kktpmDirect + kktpmProjected + kktpmAdjusted) / 3;
+        } else {
+            return kktpmDirect;
+        }
+    }
+
     /**
      * Calculates KKTPM, given objectives, constraints and Lagrange multipliers.
      * (assumes rho = 0.0)
@@ -1019,6 +1234,21 @@ public class KKTPMCalculator {
         return getKKTPM(x, f, z, g, jacobianF, jacobianG, u, 0.0);
     }
 
+    public static double getKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double[] u,
+            double[] wStar) throws
+            DimensionMismatchException,
+            OutOfRangeException,
+            NotPositiveException {
+        return getKKTPM2(x, f, z, g, jacobianF, jacobianG, u, 0.0, wStar);
+    }
+
     /**
      * Calculates KKTPM at the specified point. (assumes rho = 0.0)
      *
@@ -1038,6 +1268,17 @@ public class KKTPMCalculator {
             double[][] jacobianF,
             double[][] jacobianG) {
         return getKKTPM(x, f, z, g, jacobianF, jacobianG, 0.0);
+    }
+
+    public static double getKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double[] wStar) {
+        return getKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.0, wStar);
     }
 
     /**
@@ -1067,6 +1308,33 @@ public class KKTPMCalculator {
         if (isApproximationRequired(u, g)) {
             double kktpmAdjusted = getAdjustedKKTPM(f, g, u);
             double kktpmProjected = getProjectedKKTPM(f, g, u, kktpmDirect);
+            return (kktpmDirect + kktpmAdjusted + kktpmProjected) / 3;
+        } else {
+            return kktpmDirect;
+        }
+//        if (kktpmAdjusted > kktpmDirect) {
+//            return (kktpmDirect + kktpmAdjusted + kktpmProjected) / 3;
+//        } else {
+//            return kktpmDirect;
+//        }
+    }
+
+    public static double getKKTPM2(
+            double[] x,
+            double[] f,
+            double[] z,
+            double[] g,
+            double[][] jacobianF,
+            double[][] jacobianG,
+            double rho,
+            double[] wStar) {
+        double[] u = getLagrangeMultiplers(x, f, z, g, jacobianF, jacobianG, rho);
+        //double kktpmDirect = getDirectKKTPM(f, g, u);
+        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, u, rho);
+        // Check if you need the approximation
+        if (isApproximationRequired(u, g)) {
+            double kktpmAdjusted = getAdjustedKKTPM2(f, g, u, z, wStar);
+            double kktpmProjected = getProjectedKKTPM2(f, g, u, kktpmDirect, z, wStar);
             return (kktpmDirect + kktpmAdjusted + kktpmProjected) / 3;
         } else {
             return kktpmDirect;
@@ -1199,6 +1467,16 @@ public class KKTPMCalculator {
         }
         return numericalEvalCount;
     }
+
+    private static double[] getH(double[] f, double[] z, double[] wStar) {
+        RealVector fv = new ArrayRealVector(f);
+        RealVector zv = new ArrayRealVector(z);
+        RealVector wv = new ArrayRealVector(wStar);
+        RealVector zf = fv.subtract(zv);
+        RealVector zfDash = zf.ebeDivide(wv);
+        double max = zfDash.getMaxValue();
+        return zfDash.mapSubtract(max).toArray();
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Testing (main)">
@@ -1209,30 +1487,31 @@ public class KKTPMCalculator {
      * @throws java.lang.Throwable
      */
     public static void main(String[] args) throws Throwable {
-        // ====================================================================
-        // Using raw input data
-        // --------------------------------------------------------------------
-        System.out.println("----------------------------------");
-        System.out.println(" Using Raw Input ");
-        System.out.println("----------------------------------");
-        calculateUsingRawData();
-        // ====================================================================
-        // Using an optimization problem object
-        // --------------------------------------------------------------------
-        System.out.println("----------------------------------");
-        System.out.println(" Using OptimizationProblem Object ");
-        System.out.println("----------------------------------");
-        calculateUsingProblemObject();
-        // ====================================================================
-        // Calculate Lagrange Multipliers Independently
-        // --------------------------------------------------------------------
-        System.out.println("----------------------------------");
-        System.out.println(" Using Lagrange Multipliers ");
-        System.out.println("----------------------------------");
-        //calculateLagrangeIndependently();
+//        // ====================================================================
+//        // Using raw input data
+//        // --------------------------------------------------------------------
+//        System.out.println("----------------------------------");
+//        System.out.println(" Using Raw Input ");
+//        System.out.println("----------------------------------");
+//        calculateKKTPMUsingRawData();
+//        // ====================================================================
+//        // Using an optimization problem object
+//        // --------------------------------------------------------------------
+//        System.out.println("----------------------------------");
+//        System.out.println(" Using OptimizationProblem Object ");
+//        System.out.println("----------------------------------");
+//        calculateKTPMUsingProblemObject();
+//        // ====================================================================
+//        // Calculate Lagrange Multipliers Independently
+//        // --------------------------------------------------------------------
+//        System.out.println("----------------------------------");
+//        System.out.println(" Using Lagrange Multipliers ");
+//        System.out.println("----------------------------------");
+//        //calculateLagrangeIndependently();
+        calculateKKTPM2UsingRawData();
     }
 
-    private static void calculateUsingRawData() {
+    private static void calculateKKTPMUsingRawData() {
         // Raw input data
         double[] x = new double[]{1};
         double[] f = new double[]{1};
@@ -1264,7 +1543,40 @@ public class KKTPMCalculator {
         System.out.format("%12s  = %10.6f%n", "KKTPM", kktpm);
     }
 
-    private static void calculateUsingProblemObject() throws
+    private static void calculateKKTPM2UsingRawData() {
+        // Raw input data
+        double[] x = new double[]{};
+        double[] f = new double[]{};
+        double[] z = new double[]{};
+        double[] g = new double[]{};
+        double[][] jacobianF = {{}};
+        double[][] jacobianG = {{}};
+        double[] wStar = new double[]{};
+        // Calculations (ASF)
+        System.out.println("<ASF>");
+        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG);
+        double kktpmAdjusted2 = getAdjustedKKTPM2(x, f, z, g, jacobianF, jacobianG, wStar);
+        double kktpmProjected2 = getProjectedKKTPM2(x, f, z, g, jacobianF, jacobianG, wStar);
+        double kktpm2 = getKKTPM2(x, f, z, g, jacobianF, jacobianG, wStar);
+        // Display results
+        System.out.format("%12s  = %10.6f%n", "Direct KKTPM", kktpmDirect);
+        System.out.format("%12s  = %10.6f%n", "Adj. KKTPM2", kktpmAdjusted2);
+        System.out.format("%12s  = %10.6f%n", "Proj. KKTPM2", kktpmProjected2);
+        System.out.format("%12s  = %10.6f%n", "KKTPM2", kktpm2);
+        // Calculation (AASF)
+        System.out.println("<AASF> (rho = 0.01)");
+        kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, 0.01);
+        kktpmAdjusted2 = getAdjustedKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.01, wStar);
+        kktpmProjected2 = getProjectedKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.01, wStar);
+        kktpm2 = getKKTPM2(x, f, z, g, jacobianF, jacobianG, 0.01, wStar);
+        // Display results
+        System.out.format("%12s  = %10.6f%n", "Direct KKTPM", kktpmDirect);
+        System.out.format("%12s  = %10.6f%n", "Adj. KKTPM2", kktpmAdjusted2);
+        System.out.format("%12s  = %10.6f%n", "Proj. KKTPM2", kktpmProjected2);
+        System.out.format("%12s  = %10.6f%n", "KKTPM2", kktpm2);
+    }
+
+    private static void calculateKTPMUsingProblemObject() throws
             Throwable,
             TooManyDecimalPointsException,
             MisplacedTokensException,
@@ -1291,7 +1603,7 @@ public class KKTPMCalculator {
         System.out.format("%12s  = %10.6f%n", "KKTPM", kktpm);
     }
 
-//    private static void calculateLagrangeIndependently() throws
+    //    private static void calculateLagrangeIndependently() throws
 //            DimensionMismatchException,
 //            MisplacedTokensException,
 //            TooManyDecimalPointsException,
@@ -1337,7 +1649,7 @@ public class KKTPMCalculator {
         }
         RealVector negativeGv = gv.mapMultiply(-1);
         double ujgj = negativeGv.dotProduct(uj);
-        if(sum + ujgj * (1 + ujgj) > 1) {
+        if (sum + ujgj * (1 + ujgj) > 1) {
             return true;
         } else {
             return false;
