@@ -101,7 +101,7 @@ public class Test {
         double[][] jacobianF = {{2}}; // Two functions & three variables
         double[][] jacobianG = {{-1}}; // Four constraints & three variables
         // Calculations
-        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG);
+        double kktpmDirect = getDirectKKTPM(x, f, z, g, jacobianF, jacobianG, 0.0);
         double kktpmAdjusted = getAdjustedKKTPM(x, f, z, g, jacobianF, jacobianG);
         double kktpmProjected = getProjectedKKTPM(x, f, z, g, jacobianF, jacobianG);
         double kktpm = getKKTPM(x, f, z, g, jacobianF, jacobianG);
@@ -128,7 +128,7 @@ public class Test {
         problem.setObjectivePartialDerivative(0, "x1", "2*x1");
         problem.setConstraintPartialDerivative(0, "x1", "-1");
         // Caclulations
-        double kktpmDirect = KKTPMCalculator.getDirectKKTPM(problem, null).getKktpm();
+        double kktpmDirect = KKTPMCalculator.getDirectKKTPM(problem, null, 0.0).getKktpm();
         double kktpmAdjusted = KKTPMCalculator.getAdjustedKKTPM(problem, null).getKktpm();
         double kktpmProjected = KKTPMCalculator.getProjectedKKTPM(problem, null).getKktpm();
         double kktpm = KKTPMCalculator.getKKTPM(problem, null).getKktpm();
@@ -161,7 +161,7 @@ public class Test {
 //        problem.setObjectivePartialDerivative(0, "x1", "2*x1");
 //        problem.setConstraintPartialDerivative(0, "x1", "-1");
 //        // Calculate Lagrange multipliers
-//        double[] u = KKTPMCalculator.getLagrangeMultiplers(problem, z);
+//        double[] u = KKTPMCalculator.getLagrangeMultipliers(problem, z);
 //        // Caclulations (using the calculated Lagrange multipliers)
 //        double kktpmDirect = KKTPMCalculator.getDirectKKTPM(f, g, u);
 //        double kktpmAdjusted = KKTPMCalculator.getAdjustedKKTPM(f, g, u);
