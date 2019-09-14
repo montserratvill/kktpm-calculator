@@ -8,12 +8,8 @@ package test;
 import exceptions.EvaluationException;
 import exceptions.MisplacedTokensException;
 import exceptions.TooManyDecimalPointsException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import kktpm.KKTPMCalculator;
@@ -21,39 +17,14 @@ import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
 import static kktpm.KKTPMCalculator.getDirectKKTPM;
 import static kktpm.KKTPMCalculator.getKKTPM;
 import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.NotPositiveException;
-import org.apache.commons.math3.exception.OutOfRangeException;
+
 import parsing.OptimizationProblem;
 import parsing.XMLParser;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
+
+import static kktpm.KKTPMCalculator.getProjectedKKTPM;
 import static kktpm.KKTPMCalculator.getDirectKKTPM;
 import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
 import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
-import static kktpm.KKTPMCalculator.getAdjustedKKTPM;
-import static kktpm.KKTPMCalculator.getDirectKKTPM;
-import static kktpm.KKTPMCalculator.getKKTPM;
-import static kktpm.KKTPMCalculator.getProjectedKKTPM;
 
 /**
  *
@@ -89,7 +60,24 @@ public class Test {
 //        System.out.println(" Using Lagrange Multipliers ");
 //        System.out.println("----------------------------------");
 //        //calculateLagrangeIndependently();
-        calculateKktpm();
+//        calculateUsingProblemObject();
+        calculateKktpmBNH();
+    }
+
+    public static void calculateKktpmBNH() throws TooManyDecimalPointsException, MisplacedTokensException, Throwable {
+        // Problem file
+        String problemFilePath = "bnh.xml";
+        // Ideal (Utopian) point
+        double[] z = {-0.05, -0.05};
+        // ---------------------------------------------------------------------
+        // Load the problem
+        OptimizationProblem problem = XMLParser.readXML(new File(problemFilePath));
+        System.out.println(problem);
+        // Set x
+        problem.setAllVariables(new double[]{4.9999993, 3.0});
+        // Calculate KKTPM
+        double kktpm = KKTPMCalculator.getKKTPM(problem, z, 0.001).getKktpm();
+        System.out.println(kktpm);
     }
 
     private static void calculateUsingRawData() {
