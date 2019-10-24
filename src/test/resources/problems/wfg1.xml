@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problem xmlns="http://www.coin-laboratory.com/xml/">
+    <!-- Commands -->
+    <commands>
+        <command>A = 0.8</command>
+        <command>B = 0.75</command>
+        <command>C = 0.85</command>
+        <command>PI = 3.14159265359</command>
+    </commands>
+    <!-- Variables -->
+    <variables>
+        <vector size="4"
+                mins="0,0,0,0"
+                maxs="2,4,6,8">
+            z
+        </vector>
+    </variables>
+    <!-- Objectives -->
+    <objectives>
+        <objective>
+            <function> (1.0/14.0)*(6 * (A + (min(0.0, floor((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - B)) * A * (B - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)))) * (1.0 - A) * ((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - C) / (1.0 - C))^2+ 8 * (A + (min(0.0, floor((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - B)) * A * (B - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)))) * (1.0 - A) * ((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - C) / (1.0 - C))^0.02)+ 2 *(1 - cos((z[1]^0.02)*PI /2))*(1 - cos((z[2]^0.02)*PI /2))</function>
+            <gradient>
+                <derivative var="z[1]"/>
+                <derivative var="z[2]"/>
+                <derivative var="z[3]"/>
+                <derivative var="z[4]"/>
+            </gradient>
+        </objective>
+        <objective>
+            <function>
+                (1.0/14.0)*(6 * (A + (min(0.0, floor((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - B)) * A * (B - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)))) * (1.0 - A) * ((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - C) / (1.0 - C))^0.02+ 8 * (A + (min(0.0, floor((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - B)) * A * (B - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)))) * (1.0 - A) * ((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - C) / (1.0 - C))^0.02)+ 4 *(1 - cos((z[1]^0.02)*PI /2))*(1 - sin((z[2]^0.02)*PI /2))
+            </function>
+            <gradient>
+                <derivative var="z[1]"/>
+                <derivative var="z[2]"/>
+                <derivative var="z[3]"/>
+                <derivative var="z[4]"/>
+            </gradient>
+        </objective>
+        <objective>
+            <function>
+                (1.0/14.0)*(6 * (A + (min(0.0, floor((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - B)) * A * (B - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)))) * (1.0 - A) * ((abs(z[3] - 0.35) / abs(floor(0.35 - z[3]) + 0.35)) - C) / (1.0 - C))^0.02 + 8 * (A + (min(0.0, floor((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - B)) * A * (B - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35))) / B) - min(0.0, floor(C - (abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)))) * (1.0 - A) * ((abs(z[4] - 0.35) / abs(floor(0.35 - z[4]) + 0.35)) - C) / (1.0 - C))^0.02)+ 6 *(1 - (z[1]^0.02)- (cos(10* PI* (z[1]^0.02)+ PI /2)/(10* PI)))
+            </function>
+            <gradient>
+                <derivative var="z[1]"/>
+                <derivative var="z[2]"/>
+                <derivative var="z[3]"/>
+                <derivative var="z[4]"/>
+            </gradient>
+        </objective>
+    </objectives>
+    <!-- Constraints -->
+    <constraints>
+        <!-- z[1] boxing constraints -->
+        <!-- 0 <= z[1] -->
+        <constraint>
+            <function>
+                -z[1]
+            </function>
+            <gradient>
+                <derivative var="z[1]">-1</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">0</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[1] <= 2 -->
+        <constraint>
+            <function>
+                z[1] - 2
+            </function>
+            <gradient>
+                <derivative var="z[1]">1</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">0</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[2] boxing constraints -->
+        <!-- 0 <= z[2] -->
+        <constraint>
+            <function>
+                -z[2]
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">-1</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">0</derivative>
+        </gradient>
+        </constraint>
+        <!-- z[2] <= 4 -->
+        <constraint>
+            <function>
+                z[2] - 4
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">1</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">0</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[3] boxing constraints -->
+        <!-- 0 <= z[3] -->
+        <constraint>
+            <function>
+                -z[3]
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">-1</derivative>
+                <derivative var="z[4]">0</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[3] <= 6 -->
+        <constraint>
+            <function>
+                z[3] - 6
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">1</derivative>
+                <derivative var="z[4]">0</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[4] boxing constraints -->
+        <!-- 0 <= z[4] -->
+        <constraint>
+            <function>
+                -z[4]
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">-1</derivative>
+            </gradient>
+        </constraint>
+        <!-- z[4] <= 8 -->
+        <constraint>
+            <function>
+                z[4] - 8
+            </function>
+            <gradient>
+                <derivative var="z[1]">0</derivative>
+                <derivative var="z[2]">0</derivative>
+                <derivative var="z[3]">0</derivative>
+                <derivative var="z[4]">1</derivative>
+            </gradient>
+        </constraint>
+    </constraints>
+</problem>
