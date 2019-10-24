@@ -1,15 +1,79 @@
 apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
-group 'com.coin-laboratory'
+group 'com.github.000haitham000'
+archivesBaseName = "kktpm-calculator"
 version '2.1.0'
 
-sourceCompatibility = 1.8
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
 
 repositories {
     mavenCentral()
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+            pom.project {
+                name 'kktpm-calculator'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'Karush Khun Tucker Proximity Metric (KKTPM) calculator in Java'
+                url 'https://github.com/000haitham000/kktpm-calculator'
+
+                scm {
+                    connection 'scm:git:git://github.com/000haitham000/kktpm-calculator.git'
+                    developerConnection 'scm:git:ssh://github.com/000haitham000/kktpm-calculator.git'
+                    url 'https://github.com/000haitham000/kktpm-calculator'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'hseada'
+                        name 'Haitham Seada'
+                        email '000haitham000@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+sourceCompatibility = 1.8
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'

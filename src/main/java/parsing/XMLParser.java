@@ -7,20 +7,16 @@ package parsing;
 
 import exceptions.MisplacedTokensException;
 import exceptions.TooManyDecimalPointsException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * XMLParser provides the interface of reading an optimization problem
@@ -152,96 +148,4 @@ public class XMLParser {
         // Return the problem object containing all the parsed information.
         return problem;
     }
-
-    /**
-     * Just for testing
-     *
-     * @param args unused
-     */
-    public static void main(String[] args) throws TooManyDecimalPointsException, MisplacedTokensException, Throwable {
-        //OptimizationProblem problem = readXML(new File("D:/kkt_nsga3/Java KKT/problem.xml"));
-        //String filePath = "D:/kkt_nsga3/Java KKT/sample_single_objective.xml";
-        String filePath = "E:\\KKTPM\\Java KKTPM\\XML\\wfg\\wfg1.xml";
-        // Load the problem
-        OptimizationProblem problem = XMLParser.readXML(new File(filePath));
-        problem.setObjectivePartialDerivative(0, "z[1]", "789");
-        // Display the loaded problem
-        System.out.println(problem.toString());
-        System.out.println(problem.getObjectivePartialDerivative(0, "z[1]"));
-        System.out.println(problem.getConstraintPartialDerivative(3, "z[2]"));
-    }
-
-//    private static void parseXML(String fileName) {
-//        List<String> variables = new ArrayList<>();
-//        List<String> objFunctions = new ArrayList<>();
-//        List<String[]> objFunGradient = new ArrayList<>();
-//        List<String> constraints = new ArrayList<>();
-//        List<String[]> constGradient = new ArrayList<>();
-//
-//        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-//        try {
-//            XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new FileInputStream(fileName));
-//            String status;
-//            List<String> targetList = null;
-//            List<String[]> targetGradientList = null;
-//            while (xmlEventReader.hasNext()) {
-//                XMLEvent xmlEvent = xmlEventReader.nextEvent();
-//                if (xmlEvent.isStartElement()) {
-//                    StartElement startElement = xmlEvent.asStartElement();
-//                    if (startElement.getName().getLocalPart().equals("variable")) {
-//                        xmlEvent = xmlEventReader.nextEvent();
-//                        variables.add(xmlEvent.asCharacters().getData().trim());
-////                        targetList = null;
-////                        targetGradientList = null;
-//                    } else if (startElement.getName().getLocalPart().equals("objective")) {
-//                        targetList = objFunctions;
-//                        targetGradientList = objFunGradient;
-//                    } else if (startElement.getName().getLocalPart().equals("constraint")) {
-//                        targetList = constraints;
-//                        targetGradientList = constGradient;
-//                    } else if (startElement.getName().getLocalPart().equals("function")) {
-//                        xmlEvent = xmlEventReader.nextEvent();
-//                        targetList.add(xmlEvent.asCharacters().getData().trim());
-//                    } else if (startElement.getName().getLocalPart().equals("derivative")) {
-//                        Attribute idAttr = startElement.getAttributeByName(new QName("var"));
-//                        String varName = idAttr.getValue().trim();
-//                        int varIndex = variables.indexOf(varName);
-//                        xmlEvent = xmlEventReader.nextEvent();
-//                        targetGradientList.get(targetGradientList.size() - 1)[varIndex] = xmlEvent.asCharacters().getData().trim();
-//                    }
-//                    if (targetGradientList != null) {
-//                        if (targetGradientList.size() < targetList.size()) {
-//                            targetGradientList.add(new String[variables.size()]);
-//                        }
-//                    }
-//                }
-//                //if Employee end element is reached, add employee object to list
-//                if (xmlEvent.isEndElement()) {
-//                    EndElement endElement = xmlEvent.asEndElement();
-//                    String closingTagName = endElement.getName().getLocalPart();
-//                    if (closingTagName.equals("objective") || closingTagName.equals("constraint")) {
-//                        targetList = null;
-//                        targetGradientList = null;
-//                    }
-//                }
-//            }
-//            // Add all your variables to a variable manager
-//            System.out.println("* Variables:");
-//            System.out.println("\t" + variables.toString());
-//            System.out.println("* Objective Functions:");
-//            System.out.println("\t" + objFunctions.toString());
-//            System.out.println("* Constraints:");
-//            System.out.println("\t" + constraints.toString());
-//            System.out.println("* Objectives Gradients:");
-//            for (String[] derivative : objFunGradient) {
-//                System.out.println("\t" + Arrays.toString(derivative));
-//            }
-//            System.out.println("* Constraints Gradients:");
-//            for (String[] derivative : constGradient) {
-//                System.out.println("\t" + Arrays.toString(derivative));
-//            }
-//        } catch (FileNotFoundException | XMLStreamException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

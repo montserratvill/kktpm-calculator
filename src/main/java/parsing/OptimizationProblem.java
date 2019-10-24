@@ -716,7 +716,7 @@ public class OptimizationProblem {
                     double currValue = targetList.get(index).evaluate();
                     // Move your point ahead with distance delta
                     setVariable(varName, getVariable(varName) + getDelta());
-                    // Get the objective value after shifting
+                    // Get the value after shifting
                     double shiftedValue = targetList.get(index).evaluate();
                     // Calculate the partial derivative using  Newton's difference quotient (also known as a first-order divided difference or forward difference)
                     partialDerivative = (shiftedValue - currValue) / getDelta();
@@ -989,114 +989,6 @@ public class OptimizationProblem {
                 constSb.toString());
         // Return the full description
         return desc;
-    }
-
-    /**
-     * For testing purposes.
-     *
-     * @param args not used
-     */
-    public static void main(String[] args) throws
-            MisplacedTokensException,
-            Throwable {
-        // Create an optimization problem object
-        OptimizationProblem problem = new OptimizationProblem();
-        // Variables
-        problem.setVariable("x1", 10);
-        problem.setVariable("x2", 2);
-        problem.setVariable("y1", 3);
-        problem.setVariable("y3", 7);
-        // Objectives
-        problem.addObjective("2*x1+3*y1-y3^2");
-        problem.addObjective("2*x1+x2+y1");
-        // Constraints
-        problem.addConstraint("x2^3-y3");
-        problem.addConstraint("x1+y1");
-        // Partial Derivatives (objective 1)
-        problem.setObjectivePartialDerivative(0, "x1", "2");
-        problem.setObjectivePartialDerivative(0, "x2", "0");
-        problem.setObjectivePartialDerivative(0, "y1", "3");
-        problem.setObjectivePartialDerivative(0, "y3", "0-2*y3");
-        // Partial Derivatives (objective 2)
-        problem.setObjectivePartialDerivative(1, "x1", "2");
-        problem.setObjectivePartialDerivative(1, "x2", "1");
-        problem.setObjectivePartialDerivative(1, "y1", "1");
-        problem.setObjectivePartialDerivative(1, "y3", "0");
-        // Partial Derivatives (constraint 1)
-        problem.setConstraintPartialDerivative(0, "x1", "0");
-        problem.setConstraintPartialDerivative(0, "x2", "3*x2^2");
-        problem.setConstraintPartialDerivative(0, "y1", "0");
-        problem.setConstraintPartialDerivative(0, "y3", "0-1");
-        // Partial Derivatives (constraint 2)
-        problem.setConstraintPartialDerivative(1, "x1", "1");
-        problem.setConstraintPartialDerivative(1, "x2", "0");
-        problem.setConstraintPartialDerivative(1, "y1", "1");
-        problem.setConstraintPartialDerivative(1, "y3", "0");
-        // Retrieve variables
-        System.out.format("x1 = %f%n", problem.getVariable("x1"));
-        System.out.format("x2 = %f%n", problem.getVariable("x2"));
-        try {
-            System.out.format("x3 = %f%n", problem.getVariable("x3"));
-        } catch (Throwable ex) {
-            System.out.println(ex.toString());
-        }
-        System.out.format("y1 = %f%n", problem.getVariable("y1"));
-        System.out.format("y3 = %f%n", problem.getVariable("y3"));
-        // Retrieve objectives
-        System.out.format("obj(0) = %f%n", problem.getObjective(0));
-        System.out.format("obj(1) = %f%n", problem.getObjective(1));
-        // Retrieve constraints
-        System.out.format("con(0) = %f%n", problem.getConstraint(0));
-        System.out.format("con(1) = %f%n", problem.getConstraint(1));
-        // Retrive partial derivatives
-        // First objective
-        System.out.format("PD(obj-0,x1) = %f%n", problem.getObjectivePartialDerivative(0, "x1"));
-        System.out.format("PD(obj-0,x2) = %f%n", problem.getObjectivePartialDerivative(0, "x2"));
-        try {
-            System.out.format("PD(obj-0,x3) = %f%n", problem.getObjectivePartialDerivative(0, "x3"));
-        } catch (Throwable ex) {
-            System.out.println(ex.toString());
-        }
-        System.out.format("PD(obj-0,y1) = %f%n", problem.getObjectivePartialDerivative(0, "y1"));
-        System.out.format("PD(obj-0,y3) = %f%n", problem.getObjectivePartialDerivative(0, "y3"));
-        // Second objective
-        System.out.format("PD(obj-1,x1) = %f%n", problem.getObjectivePartialDerivative(1, "x1"));
-        System.out.format("PD(obj-1,x2) = %f%n", problem.getObjectivePartialDerivative(1, "x2"));
-        System.out.format("PD(obj-1,y1) = %f%n", problem.getObjectivePartialDerivative(1, "y1"));
-        System.out.format("PD(obj-1,y3) = %f%n", problem.getObjectivePartialDerivative(1, "y3"));
-        // First constraint
-        System.out.format("PD(con-0,x1) = %f%n", problem.getConstraintPartialDerivative(0, "x1"));
-        System.out.format("PD(con-0,x2) = %f%n", problem.getConstraintPartialDerivative(0, "x2"));
-        System.out.format("PD(con-0,y1) = %f%n", problem.getConstraintPartialDerivative(0, "y1"));
-        System.out.format("PD(con-0,y3) = %f%n", problem.getConstraintPartialDerivative(0, "y3"));
-        // Second constraint
-        System.out.format("PD(con-1,x1) = %f%n", problem.getConstraintPartialDerivative(1, "x1"));
-        System.out.format("PD(con-1,x2) = %f%n", problem.getConstraintPartialDerivative(1, "x2"));
-        System.out.format("PD(con-1,y1) = %f%n", problem.getConstraintPartialDerivative(1, "y1"));
-        System.out.format("PD(con-1,y3) = %f%n", problem.getConstraintPartialDerivative(1, "y3"));
-        // Change all variables at once
-        problem.setAllVariables(new double[]{-1, -2, -3, -4});
-        // Retreive variables
-        System.out.format("x1 = %f%n", problem.getVariable("x1"));
-        System.out.format("x2 = %f%n", problem.getVariable("x2"));
-        System.out.format("y1 = %f%n", problem.getVariable("y1"));
-        System.out.format("y3 = %f%n", problem.getVariable("y3"));
-        // Test after retreival
-        System.out.format("obj-0(after retieval) = %f%n", problem.getObjective(0));
-        System.out.format("obj-1(after retieval) = %f%n", problem.getObjective(1));
-        // Change a variable (by name)
-        problem.setVariable("y1", 100);
-        // Add a variable (by name)
-        problem.setVariable("new_variable", 77);
-        // Retreive variables (using iterator)
-        Iterator<Map.Entry<String, Double>> it = problem.getVariablesIterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Double> entry = it.next();
-            System.out.format("%s = %f%n", entry.getKey(), entry.getValue());
-        }
-        // Test after retreival
-        System.out.format("obj-0(after retieval) = %f%n", problem.getObjective(0));
-        System.out.format("obj-1(after retieval) = %f%n", problem.getObjective(1));
     }
 
     /**
