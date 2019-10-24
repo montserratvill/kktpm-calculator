@@ -683,11 +683,6 @@ public class OptimizationProblem {
      * gradients list.
      * @return the partial derivative of obj/con(<i>index</i>) with respect to
      * variable <i>varName</i>.
-     * @throws TooManyDecimalPointsException if thrown by
-     * MathExpressionParser.parse(...)
-     * @throws MisplacedTokensException if thrown by
-     * MathExpressionParser.parse(...)
-     * @throws Throwable if thrown by MathExpressionParser.parse(...)
      */
     public Derivative getPartialDerivative(
             int index,
@@ -748,11 +743,6 @@ public class OptimizationProblem {
      * gradients list.
      * @return the partial derivative of obj/con(<i>index</i>) with respect to
      * variable <i>varName</i>.
-     * @throws TooManyDecimalPointsException if thrown by
-     * MathExpressionParser.parse(...)
-     * @throws MisplacedTokensException if thrown by
-     * MathExpressionParser.parse(...)
-     * @throws Throwable if thrown by MathExpressionParser.parse(...)
      */
     public Derivative getPartialDerivative(
             int index,
