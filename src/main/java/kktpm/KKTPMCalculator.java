@@ -36,6 +36,7 @@ import parsing.OptimizationProblem;
  *
  * @author Haitham
  */
+@SuppressWarnings("Duplicates")
 public class KKTPMCalculator {
 
     private static String zErrorMessage
