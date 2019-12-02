@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.000haitham000/kktpm-calculator.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.000haitham000%22%20AND%20a:%22kktpm-calculator%22)
+
 # KKTPM Calculator Version 2.1.0
 Karush Kuhn Tucker Proximity Measure (KKTPM) Calculator is a Java implementation of the multiobjective optimization
 metric developed by Deb et al. in their paper,
